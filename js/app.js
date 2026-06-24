@@ -33,9 +33,19 @@
   $("#home-city").textContent = HOME_CITY;
 
   /* ---- maps ---- */
-  const homeMap   = NightMap($("#homeMap"));
-  const selectMap = NightMap($("#selectMap"));
+  const homeMap   = makeMap($("#homeMap"), { zoom:4 });
+  const selectMap = makeMap($("#selectMap"), { interactive:true, zoom:4,
+    onSelect:(i)=> chooseFlight(i) });
   homeMap.start();
+
+  // pick a flight from a card or a map badge — keeps everything in sync
+  function chooseFlight(i){
+    selected = i;
+    activeRegion = FLIGHTS[i].region;
+    setDuration(FLIGHTS[i].min);
+    renderRegions(); renderCards();
+    selectMap.select(i);
+  }
 
   /* ---- subtle first-class / "act as if" flavour ---- */
   const QUOTES = [
@@ -72,6 +82,7 @@
         selected = FLIGHTS.findIndex(f=>f.region===r);
         setDuration(FLIGHTS[selected].min);
         renderRegions(); renderCards();
+        selectMap.focusRegion(r); selectMap.select(selected);
       });
       regionRow.appendChild(b);
     });
@@ -93,7 +104,7 @@
         <div class="fdur">${fmtDuration(f.min)} de vol</div>
         <div class="ftheme">${th.name}</div>`;
       card.addEventListener("click", ()=>{
-        selected = i; setDuration(f.min); renderCards();
+        selected = i; setDuration(f.min); renderCards(); selectMap.select(i);
       });
       cardsEl.appendChild(card);
     });
@@ -127,17 +138,15 @@
   /* ---- navigation ---- */
   $("#goSelect").addEventListener("click", ()=>{
     renderRegions(); renderCards(); setDuration(FLIGHTS[selected].min);
-    selectMap.start(); show("select");
+    selectMap.start(); selectMap.focusRegion(activeRegion); selectMap.select(selected);
+    show("select");
     clearInterval(quoteTimer); quoteTimer = setInterval(setQuote, 7000);
   });
   $("#backSelect").addEventListener("click", ()=>{
     selectMap.stop(); clearInterval(quoteTimer); show("home");
   });
   $("#shuffleFlight").addEventListener("click", ()=>{
-    selected = Math.floor(Math.random()*FLIGHTS.length);
-    activeRegion = FLIGHTS[selected].region;
-    setDuration(FLIGHTS[selected].min);
-    renderRegions(); renderCards();
+    chooseFlight(Math.floor(Math.random()*FLIGHTS.length));
   });
 
   /* ---- the window experience ---- */

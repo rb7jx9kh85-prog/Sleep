@@ -58,7 +58,21 @@ body{
 .ic-batt::before{content:"";position:absolute;right:-4px;top:3px;width:2px;height:6px;background:#fff;border-radius:1px}
 
 /* ---------------- map canvases ---------------- */
-.map-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+.map-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0;background:#06101f}
+/* darken the real satellite tiles for a night ambiance */
+.leaflet-container{background:#06101f !important;font-family:inherit}
+.sat .leaflet-tile-pane{filter:brightness(.55) saturate(1.15) contrast(1.05)}
+.sat .leaflet-control-attribution{background:rgba(6,16,31,.5);color:#7b8aa6;font-size:9px}
+.sat .leaflet-control-attribution a{color:#9aa6bd}
+/* airport badge markers (like the reference design) */
+.ap-badge{display:inline-block;transform:translate(-50%,-50%);
+  background:rgba(10,14,24,.82);border:1px solid var(--gold-deep);color:var(--gold);
+  font-weight:700;font-size:12px;letter-spacing:.4px;padding:4px 9px;border-radius:9px;
+  white-space:nowrap;box-shadow:0 3px 10px rgba(0,0,0,.5),0 0 12px rgba(255,207,92,.25);cursor:pointer}
+.ap-badge.selected{background:var(--gold);color:#0c1018;border-color:var(--gold);
+  box-shadow:0 0 18px rgba(255,207,92,.7);transform:translate(-50%,-50%) scale(1.12)}
+.ap-badge.home{background:#fff;color:#0c1018;border-color:#fff;
+  box-shadow:0 0 14px rgba(255,255,255,.6)}
 .map-vignette{position:absolute;inset:0;z-index:1;pointer-events:none;
   background:radial-gradient(120% 80% at 50% 18%,transparent 30%,rgba(4,8,18,.55) 78%,rgba(3,6,14,.92) 100%);}
 .map-vignette.soft{background:radial-gradient(130% 90% at 50% 35%,transparent 40%,rgba(4,8,18,.4) 80%,rgba(3,6,14,.85) 100%);}

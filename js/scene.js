@@ -14,6 +14,7 @@ function Scene(canvas){
   let theme, stars = [], clouds = [], groundLights = [], ridges = [];
   let mwStars = [], seaPuffs = [];
   let strike = 0, strikeX = 0.5, nextStrike = 3;
+  let shoot = null, nextShoot = 8;
   let puffWhite, puffTint, puffWhiteSea, nightAmount = 0, running = false;
 
   const lerp = (a,b,k)=>a+(b-a)*k;
@@ -49,18 +50,30 @@ function Scene(canvas){
     const c = puffTint.getContext("2d");
     c.drawImage(puffWhite,0,0);
     c.globalCompositeOperation = "source-in";
-    c.fillStyle = rgb(theme.cloudColor);
+    // vertical light gradient gives the cloud volume (lit top, shaded base)
+    const top = mix(theme.cloudColor, [255,255,255], 0.32);
+    const bot = mix(theme.cloudColor, [0,0,0], 0.45);
+    const g = c.createLinearGradient(0,0,0,s);
+    g.addColorStop(0, rgb(top));
+    g.addColorStop(0.55, rgb(theme.cloudColor));
+    g.addColorStop(1, rgb(bot));
+    c.fillStyle = g;
     c.fillRect(0,0,s,s);
   }
 
   /* ---- population ---- */
   function build(){
     stars = [];
-    const n = Math.round(180 * (theme.stars || 0));
+    const n = Math.round(240 * (theme.stars || 0));
+    const palette = [[234,240,255],[255,240,214],[210,224,255],[255,255,255]];
     for (let i = 0; i < n; i++){
+      const bright = Math.random() < 0.10;
       stars.push({ x:Math.random(), y:Math.random()*0.62,
-        s:rand(0.4,1.6), tw:Math.random()*6.28, sp:rand(0.01,0.04) });
+        s:bright ? rand(1.6,2.6) : rand(0.4,1.5),
+        tw:Math.random()*6.28, sp:rand(0.01,0.04),
+        col:palette[Math.floor(Math.random()*palette.length)], bright });
     }
+    shoot = null; nextShoot = rand(6,14);
 
     clouds = [];
     // cloud deck near & below the horizon
@@ -241,12 +254,54 @@ function Scene(canvas){
     for (const s of stars){
       s.tw += s.sp;
       const a = (0.35 + 0.45*Math.sin(s.tw)) * base;
-      if (a <= 0) continue;
-      ctx.globalAlpha = a;
-      ctx.fillStyle = "#eaf0ff";
-      ctx.fillRect(s.x*W, s.y*HORIZON(), s.s, s.s);
+      if (a <= 0.02) continue;
+      const x = s.x*W, y = s.y*HORIZON(), col = s.col || [234,240,255];
+      if (s.bright){
+        // soft glow + a faint diffraction cross for the brightest stars
+        const gl = ctx.createRadialGradient(x,y,0,x,y,s.s*5);
+        gl.addColorStop(0, rgb(col, 0.5*a));
+        gl.addColorStop(1, rgb(col, 0));
+        ctx.fillStyle = gl;
+        ctx.beginPath(); ctx.arc(x,y,s.s*5,0,6.283); ctx.fill();
+        ctx.strokeStyle = rgb(col, 0.25*a); ctx.lineWidth = 0.6;
+        ctx.beginPath();
+        ctx.moveTo(x-s.s*4,y); ctx.lineTo(x+s.s*4,y);
+        ctx.moveTo(x,y-s.s*4); ctx.lineTo(x,y+s.s*4); ctx.stroke();
+      }
+      ctx.fillStyle = rgb(col, a);
+      ctx.beginPath(); ctx.arc(x,y,s.s*0.6,0,6.283); ctx.fill();
     }
     ctx.restore();
+  }
+
+  function drawShooting(){
+    if (nightAmount < 0.4) return;
+    nextShoot -= 0.016;
+    if (!shoot && nextShoot <= 0){
+      shoot = { x:rand(0.1,0.7), y:rand(0.05,0.35), len:rand(80,160),
+                vx:rand(3,6), vy:rand(1.2,2.4), life:1 };
+      nextShoot = rand(7,18);
+    }
+    if (!shoot) return;
+    shoot.x += shoot.vx/W; shoot.y += shoot.vy/W; shoot.life -= 0.02;
+    if (shoot.life <= 0){ shoot = null; return; }
+    const x = shoot.x*W, y = shoot.y*HORIZON();
+    const tailX = x - shoot.vx*shoot.len*0.12, tailY = y - shoot.vy*shoot.len*0.12;
+    const g = ctx.createLinearGradient(tailX,tailY,x,y);
+    g.addColorStop(0,"rgba(255,255,255,0)");
+    g.addColorStop(1,`rgba(255,255,255,${0.9*shoot.life})`);
+    ctx.strokeStyle = g; ctx.lineWidth = 2; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(tailX,tailY); ctx.lineTo(x,y); ctx.stroke();
+  }
+
+  function drawAirglow(){
+    // thin luminous band of atmosphere right on the horizon
+    const hy = HORIZON();
+    const c = mix(theme.glow || theme.skyHorizon, [255,255,255], 0.2);
+    const g = ctx.createLinearGradient(0,hy-18,0,hy+4);
+    g.addColorStop(0, rgb(c,0));
+    g.addColorStop(1, rgb(c, 0.22 * (theme.glowStrength ? 1 : 0.5) * (1 - nightAmount*0.4)));
+    ctx.fillStyle = g; ctx.fillRect(0,hy-18,W,22);
   }
 
   function drawAurora(){
@@ -499,11 +554,13 @@ function Scene(canvas){
     drawSky();
     drawMilkyWay();
     drawStars();
+    drawShooting();
     drawAurora();
     drawMoon();
     drawLightning();      // back-lights the cloud deck below
     drawClouds(0,0);      // far deck (behind horizon haze)
     drawHaze();
+    drawAirglow();
     drawGround();
     drawClouds(1,1);      // mid
     drawClouds(2,2);      // high wisps foreground

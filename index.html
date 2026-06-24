@@ -10,6 +10,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
@@ -17,7 +19,7 @@
 
     <!-- ============ HOME ============ -->
     <section class="screen home active" id="screen-home">
-      <canvas class="map-canvas" id="homeMap"></canvas>
+      <div class="map-canvas" id="homeMap"></div>
       <div class="map-vignette"></div>
 
       <div class="statusbar">
@@ -45,7 +47,7 @@
 
     <!-- ============ FLIGHT SELECT ============ -->
     <section class="screen select" id="screen-select">
-      <canvas class="map-canvas" id="selectMap"></canvas>
+      <div class="map-canvas" id="selectMap"></div>
       <div class="map-vignette soft"></div>
 
       <div class="statusbar">

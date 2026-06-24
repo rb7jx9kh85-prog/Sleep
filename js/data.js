@@ -156,6 +156,18 @@ const FLIGHTS = [
 ];
 
 const HOME_CITY = "Genève";
+const HOME_COORD = [46.238, 6.109];   // GVA
+
+/* airport coordinates [lat, lng] for the real satellite map markers */
+const AIRPORTS = {
+  GVA:[46.238,6.109], ZRH:[47.46,8.55], CFE:[45.79,3.16], MXP:[45.63,8.72],
+  CDG:[49.01,2.55], BCN:[41.30,2.08], LIS:[38.77,-9.13], ATH:[37.94,23.95], INN:[47.26,11.34],
+  KEF:[63.99,-22.62], OSL:[60.19,11.10], TOS:[69.68,18.92],
+  DXB:[25.25,55.36], YUL:[45.47,-73.74], BOS:[42.36,-71.01], JFK:[40.64,-73.78], MLE:[4.19,73.53],
+  GRU:[-23.43,-46.47], LAX:[33.94,-118.41], BKK:[13.69,100.75], JNB:[-26.13,28.24],
+  HKG:[22.31,113.91], CPT:[-33.97,18.60], HND:[35.55,139.78], SIN:[1.36,103.99],
+  SCL:[-33.39,-70.79], SYD:[-33.94,151.18], AKL:[-37.01,174.79],
+};
 
 /* "8 h 30", "1 h 30" or "45 min" */
 function fmtDuration(min){

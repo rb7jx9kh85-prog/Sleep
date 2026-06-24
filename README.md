@@ -45,7 +45,9 @@ Ou ouvrez simplement `index.html` dans un navigateur.
 index.html      structure des 3 écrans + cadre du hublot (CSS)
 css/styles.css  design, cadre de hublot, store, HUD, feuilles
 js/data.js      vols + thèmes d'ambiance (couleurs ciel, nuages, sol…)
-js/map.js       carte « Terre la nuit » des écrans accueil/sélection
+js/map.js       carte SATELLITE réelle (Leaflet + Esri World Imagery,
+                sans clé API) avec badges aéroports ; repli procédural
+                « Terre la nuit » si hors-ligne
 js/scene.js     moteur de rendu de la vue hublot (toutes les couches)
 js/audio.js     ronronnement de cabine (Web Audio)
 js/app.js       navigation, horloge, minuteur, fondu de sommeil
