@@ -34,7 +34,7 @@
 
       <div class="home-bottom">
         <button class="btn-primary" id="goSelect">Commencer le voyage</button>
-        <div class="attribution">Window Seat · pour s'endormir</div>
+        <div class="attribution">Stratton Air · cabine privée · première classe</div>
         <div class="tabs">
           <button class="tab active">Mes vols</button>
           <button class="tab">Tendances</button>
@@ -61,10 +61,24 @@
         <button class="round-btn" id="shuffleFlight" aria-label="Aléatoire">⤮</button>
       </div>
 
-      <div class="duration-strip">
-        <span class="dur-label" id="durLabel">45 min</span>
-        <div class="ruler"><span class="ruler-mark"></span></div>
+      <div class="region-row" id="regionRow"><!-- injected --></div>
+
+      <div class="dur-picker">
+        <button class="dial-btn" id="durMinus" aria-label="Moins">−</button>
+        <div class="dur-dial">
+          <svg class="dial-svg" viewBox="0 0 200 200">
+            <circle class="dial-track" cx="100" cy="100" r="86"/>
+            <circle class="dial-fill" id="dialFill" cx="100" cy="100" r="86"/>
+          </svg>
+          <div class="dial-center">
+            <span class="dial-num" id="durBig">45</span>
+            <span class="dial-unit" id="durUnit">minutes</span>
+            <span class="dial-cap">durée du vol</span>
+          </div>
+        </div>
+        <button class="dial-btn" id="durPlus" aria-label="Plus">+</button>
       </div>
+      <div class="dur-quote" id="durQuote"></div>
 
       <div class="flight-cards" id="flightCards"><!-- injected --></div>
 

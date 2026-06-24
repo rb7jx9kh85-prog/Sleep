@@ -12,7 +12,9 @@ function Scene(canvas){
   const ctx = canvas.getContext("2d");
   let W, H, dpr, raf, t = 0;
   let theme, stars = [], clouds = [], groundLights = [], ridges = [];
-  let puffWhite, puffTint, nightAmount = 0, running = false;
+  let mwStars = [], seaPuffs = [];
+  let strike = 0, strikeX = 0.5, nextStrike = 3;
+  let puffWhite, puffTint, puffWhiteSea, nightAmount = 0, running = false;
 
   const lerp = (a,b,k)=>a+(b-a)*k;
   const rand = (a,b)=>a+Math.random()*(b-a);
@@ -76,9 +78,35 @@ function Scene(canvas){
     }
     clouds.sort((a,b)=>a.layer-b.layer);
 
+    // milky way band of dense faint stars along a diagonal
+    mwStars = [];
+    if (theme.milkyway){
+      const n = Math.round(420 * theme.milkyway);
+      for (let i = 0; i < n; i++){
+        const u = Math.random();                 // position along the band
+        const spread = Math.pow(Math.random(),2) * 0.11 * (Math.random()<.5?1:-1);
+        // band running from lower-left to upper-right
+        const bx = u;
+        const by = 0.55 - u*0.45 + spread;
+        mwStars.push({ x:bx, y:Math.max(0,by), s:rand(0.4,1.4), tw:Math.random()*6.28, sp:rand(0.01,0.03) });
+      }
+    }
+
+    // sea of clouds (daytime deck / storm deck) filling below the horizon
+    seaPuffs = [];
+    if (theme.cloudSea){
+      for (let i = 0; i < 38; i++){
+        seaPuffs.push({ x:Math.random()*1.5-0.25, row:Math.random(),
+          scale:rand(1.6,3.2), speed:rand(0.008,0.02), tw:Math.random()*6.28 });
+      }
+    }
+
+    strike = 0; nextStrike = rand(2,6);
+
     groundLights = [];
+    const cityCount = Math.round(260 * (theme.groundDensity || 1));
     if (theme.ground === "cities"){
-      for (let i = 0; i < 260; i++){
+      for (let i = 0; i < cityCount; i++){
         const depth = Math.random();            // 0 = near horizon, 1 = near bottom
         groundLights.push({
           x: Math.random()*1.4 - 0.2,
@@ -99,6 +127,18 @@ function Scene(canvas){
           y += rand(-0.05,0.05);
           y = Math.max(0.1, Math.min(0.6, y));
           pts.push({x, y: y + layer*0.12});
+        }
+        ridges.push(pts);
+      }
+    }
+    if (theme.ground === "desert"){
+      for (let layer = 0; layer < 2; layer++){
+        const pts = [];
+        let y = rand(0.55,0.7);
+        for (let x = -0.1; x <= 1.2; x += 0.12){
+          y += rand(-0.04,0.04);
+          y = Math.max(0.4, Math.min(0.85, y));
+          pts.push({x, y: y + layer*0.1});
         }
         ridges.push(pts);
       }
@@ -151,6 +191,47 @@ function Scene(canvas){
       rad.addColorStop(1, rgb(theme.glow, 0));
       ctx.fillStyle = rad; ctx.fillRect(0,0,W,HORIZON()+2);
     }
+  }
+
+  function drawMilkyWay(){
+    if (!theme.milkyway || !mwStars.length) return;
+    const base = Math.min(1, 0.3 + nightAmount);
+    // faint nebula glow along the band
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    const grad = ctx.createLinearGradient(0, HORIZON()*0.55, W, 0);
+    grad.addColorStop(0, "rgba(60,40,90,0)");
+    grad.addColorStop(0.5, `rgba(120,110,170,${0.10*base})`);
+    grad.addColorStop(1, "rgba(40,60,110,0)");
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.moveTo(0, HORIZON()*0.55+60); ctx.lineTo(0, HORIZON()*0.55-60);
+    ctx.lineTo(W, -60); ctx.lineTo(W, 60); ctx.closePath();
+    ctx.fill();
+    // dense dust stars
+    for (const s of mwStars){
+      s.tw += s.sp;
+      const a = (0.25 + 0.4*Math.sin(s.tw)) * base;
+      ctx.globalAlpha = a;
+      ctx.fillStyle = Math.random()<0.04 ? "#fff7e6" : "#dfe6ff";
+      ctx.fillRect(s.x*W, s.y*HORIZON(), s.s, s.s);
+    }
+    ctx.restore();
+    ctx.globalAlpha = 1;
+  }
+
+  function drawLightning(){
+    if (!theme.storm) return;
+    if (strike <= 0.01) return;
+    const gx = strikeX*W, gy = HORIZON()*0.7;
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    const g = ctx.createRadialGradient(gx,gy,0,gx,gy,H*0.6);
+    g.addColorStop(0, `rgba(200,220,255,${0.7*strike})`);
+    g.addColorStop(0.3, `rgba(160,190,255,${0.25*strike})`);
+    g.addColorStop(1, "rgba(160,190,255,0)");
+    ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+    ctx.restore();
   }
 
   function drawStars(){
@@ -243,6 +324,39 @@ function Scene(canvas){
     if (theme.ground === "ocean")  drawOcean(hy);
     if (theme.ground === "mountains") drawMountains(hy);
     if (theme.ground === "snow")   drawSnow(hy);
+    if (theme.ground === "desert") drawDesert(hy);
+    if (theme.cloudSea) drawCloudSea(hy);
+  }
+
+  function drawDesert(hy){
+    ridges.forEach((pts,idx)=>{
+      ctx.beginPath();
+      ctx.moveTo(-10,H);
+      pts.forEach(p=> ctx.lineTo(p.x*W, hy + p.y*(H-hy)));
+      ctx.lineTo(W+10,H); ctx.closePath();
+      const warm = idx===0 ? [60,40,40] : [40,28,34];
+      const g = ctx.createLinearGradient(0,hy,0,H);
+      g.addColorStop(0, rgb(mix(warm,[20,14,18],nightAmount)));
+      g.addColorStop(1, rgb([10,7,10]));
+      ctx.fillStyle = g; ctx.fill();
+    });
+  }
+
+  function drawCloudSea(hy){
+    // a soft floor of clouds just below the horizon
+    for (const p of seaPuffs){
+      p.x -= p.speed * 0.016;
+      if (p.x < -0.3) p.x += 1.6;
+      p.tw += 0.01;
+      const w = 320 * p.scale;
+      const h = w * 0.42;
+      const py = hy + 6 + p.row * (H-hy) * 0.55 + Math.sin(p.tw)*4;
+      // brighten with lightning if a storm
+      const lift = theme.storm ? strike*0.4 : 0;
+      ctx.globalAlpha = Math.min(1, (theme.cloudAlpha||0.7) + lift);
+      ctx.drawImage(puffTint, p.x*W - w/2, py - h/2, w, h);
+    }
+    ctx.globalAlpha = 1;
   }
 
   function drawCities(hy){
@@ -368,11 +482,26 @@ function Scene(canvas){
   function frame(){
     if (!running) return;
     t += 0.016;
+    // storm lightning timing
+    if (theme && theme.storm){
+      nextStrike -= 0.016;
+      if (nextStrike <= 0){
+        strike = 1;
+        strikeX = rand(0.2, 0.8);
+        nextStrike = rand(3, 9);
+      }
+      // decay with an occasional flicker
+      strike *= 0.9;
+      if (strike > 0.05 && strike < 0.5 && Math.random() < 0.15) strike = Math.min(1, strike + 0.6);
+    }
+
     ctx.clearRect(0,0,W,H);
     drawSky();
+    drawMilkyWay();
     drawStars();
     drawAurora();
     drawMoon();
+    drawLightning();      // back-lights the cloud deck below
     drawClouds(0,0);      // far deck (behind horizon haze)
     drawHaze();
     drawGround();
