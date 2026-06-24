@@ -57,7 +57,7 @@
   }
 
   /* ---- region filter ---- */
-  const REGIONS = ["Europe","Grand Nord","Transatlantique","Monde"];
+  const REGIONS = ["Europe","Grand Nord","Transatlantique","Ultra long-courrier"];
   let activeRegion = "Europe";
   const regionRow = $("#regionRow");
   function renderRegions(){
@@ -100,7 +100,7 @@
   }
 
   /* ---- duration counter dial ---- */
-  const DUR_MIN = 15, DUR_MAX = 1320;   // 15 min .. 22 h
+  const DUR_MIN = 15, DUR_MAX = 1440;   // 15 min .. 24 h
   const CIRC = 540.35;
   let durationMin = 45;
   const dialFill = $("#dialFill");

@@ -106,6 +106,15 @@ const THEMES = {
     cloudColor:[255,210,200], cloudDensity:0.55, cloudAlpha:0.6,
     ground:"ocean", wingLights:1, nightFrom:0, nightTo:0.35,
   },
+  // ultra-long red-eye: starts in deep starry night, ends in sunrise
+  redEye: {
+    name: "Vol de nuit → lever de soleil",
+    skyTop:[26,34,82], skyMid:[150,110,140], skyHorizon:[255,180,120],
+    glow:[255,180,110], glowStrength:1.0, glowX:0.62,
+    stars:1, milkyway:1, moon:0,
+    cloudColor:[255,195,160], cloudDensity:0.45, cloudAlpha:0.55,
+    ground:"ocean", wingLights:1, nightFrom:1, nightTo:0.05,
+  },
 };
 
 /* duration in minutes. Mixed short-haul + long-haul transatlantic + world. */
@@ -125,20 +134,25 @@ const FLIGHTS = [
   { from:"GVA", to:"OSL", city:"Oslo",              min:150, theme:"aurora",      region:"Grand Nord" },
   { from:"GVA", to:"TOS", city:"Tromsø",            min:240, theme:"aurora",      region:"Grand Nord" },
 
-  /* — Transatlantique — */
-  { from:"GVA", to:"JFK", city:"New York",          min:480, theme:"transAtlantic", region:"Transatlantique" },
+  /* — Transatlantique (6 h – 8 h) — */
+  { from:"GVA", to:"DXB", city:"Dubaï",             min:360, theme:"desertDusk",    region:"Transatlantique" },
   { from:"GVA", to:"YUL", city:"Montréal",          min:450, theme:"transAtlantic", region:"Transatlantique" },
   { from:"GVA", to:"BOS", city:"Boston",            min:460, theme:"transAtlantic", region:"Transatlantique" },
-  { from:"GVA", to:"LAX", city:"Los Angeles",       min:660, theme:"bigCityApproach", region:"Transatlantique" },
-  { from:"GVA", to:"GRU", city:"São Paulo",         min:690, theme:"milkyOcean",   region:"Transatlantique" },
+  { from:"GVA", to:"JFK", city:"New York",          min:480, theme:"redEye",        region:"Transatlantique" },
+  { from:"GVA", to:"MLE", city:"Maldives",          min:540, theme:"tropicalDawn",  region:"Transatlantique" },
 
-  /* — Reste du monde — */
-  { from:"GVA", to:"DXB", city:"Dubaï",             min:360, theme:"desertDusk",  region:"Monde" },
-  { from:"GVA", to:"MLE", city:"Maldives",          min:540, theme:"tropicalDawn",region:"Monde" },
-  { from:"GVA", to:"SIN", city:"Singapour",         min:780, theme:"stormFront",  region:"Monde" },
-  { from:"GVA", to:"HND", city:"Tokyo",             min:720, theme:"highClouds",  region:"Monde" },
-  { from:"GVA", to:"CPT", city:"Le Cap",            min:720, theme:"milkyOcean",  region:"Monde" },
-  { from:"GVA", to:"SYD", city:"Sydney",            min:1290,theme:"transAtlantic",region:"Monde" },
+  /* — Ultra long-courrier (9 h et +) — */
+  { from:"GVA", to:"GRU", city:"São Paulo",         min:540, theme:"milkyOcean",     region:"Ultra long-courrier" },
+  { from:"GVA", to:"LAX", city:"Los Angeles",       min:660, theme:"bigCityApproach",region:"Ultra long-courrier" },
+  { from:"GVA", to:"BKK", city:"Bangkok",           min:660, theme:"tropicalDawn",   region:"Ultra long-courrier" },
+  { from:"GVA", to:"JNB", city:"Johannesburg",      min:660, theme:"redEye",         region:"Ultra long-courrier" },
+  { from:"GVA", to:"HKG", city:"Hong Kong",         min:690, theme:"milkyOcean",     region:"Ultra long-courrier" },
+  { from:"GVA", to:"CPT", city:"Le Cap",            min:720, theme:"milkyOcean",     region:"Ultra long-courrier" },
+  { from:"GVA", to:"HND", city:"Tokyo",             min:720, theme:"highClouds",     region:"Ultra long-courrier" },
+  { from:"GVA", to:"SIN", city:"Singapour",         min:780, theme:"stormFront",     region:"Ultra long-courrier" },
+  { from:"GVA", to:"SCL", city:"Santiago",          min:900, theme:"redEye",         region:"Ultra long-courrier" },
+  { from:"GVA", to:"SYD", city:"Sydney",            min:1290,theme:"milkyOcean",     region:"Ultra long-courrier" },
+  { from:"GVA", to:"AKL", city:"Auckland",          min:1410,theme:"redEye",         region:"Ultra long-courrier" },
 ];
 
 const HOME_CITY = "Genève";
