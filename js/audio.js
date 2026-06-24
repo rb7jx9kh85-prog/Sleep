@@ -12,8 +12,8 @@
         · stop() · dim(seconds) · isOn()
 -------------------------------------------------------------------*/
 const CabinAudio = (() => {
-  let ctx, master, started = false, muted = false;
-  let userVol = 0.5;            // 0..1 from the volume slider
+  let ctx, master, analyser, started = false, muted = false;
+  let userVol = 0.65;           // 0..1 from the volume slider
   let scape = "cabin";
   const branches = {};          // name -> { gain, nodes... }
 
@@ -57,22 +57,33 @@ const CabinAudio = (() => {
     master = ctx.createGain();
     master.gain.value = 0;
     master.connect(ctx.destination);
+    analyser = ctx.createAnalyser();
+    analyser.fftSize = 256;
+    master.connect(analyser);
 
     const white = whiteBuffer(ctx);
     const brown = brownBuffer(ctx);
 
-    /* ---- cabin: engine drone + rumble ---- */
+    /* ---- cabin: engine rumble + audible airflow hiss ---- */
     {
       const g = gain(0);
+      // low engine rumble
       const n = src(brown);
-      const hp = filt("highpass", 70);
-      const peak = filt("peaking", 160, 1.2); peak.gain.value = 7;
-      const lp = filt("lowpass", 480, 0.6);
-      n.connect(hp); hp.connect(peak); peak.connect(lp); lp.connect(g); g.connect(master);
+      const hp = filt("highpass", 60);
+      const peak = filt("peaking", 150, 1.0); peak.gain.value = 6;
+      const lp = filt("lowpass", 420, 0.6);
+      const rg = gain(0.7);
+      n.connect(hp); hp.connect(peak); peak.connect(lp); lp.connect(rg); rg.connect(g);
+      // broadband airflow hiss — this is what makes it audible on phone speakers
+      const h = src(white);
+      const hbp = filt("bandpass", 1700, 0.5);
+      const hg = gain(0.22);
+      h.connect(hbp); hbp.connect(hg); hg.connect(g);
+      g.connect(master);
       // slow breathing
       const lfo = ctx.createOscillator(); const lg = gain(0.05);
       lfo.frequency.value = 0.07; lfo.connect(lg); lg.connect(g.gain); lfo.start();
-      branches.cabin = { gain: g, base: 0.55 };
+      branches.cabin = { gain: g, base: 0.7 };
     }
 
     /* ---- white / pink noise ---- */
@@ -82,7 +93,7 @@ const CabinAudio = (() => {
       const hp = filt("highpass", 80);
       const lp = filt("lowpass", 6500, 0.4);   // tilt toward pink = softer
       n.connect(hp); hp.connect(lp); lp.connect(g); g.connect(master);
-      branches.white = { gain: g, base: 0.16 };
+      branches.white = { gain: g, base: 0.22 };
     }
 
     /* ---- rain ---- */
@@ -99,7 +110,7 @@ const CabinAudio = (() => {
       const r = src(brown); const rlp = filt("lowpass", 220); const rg = gain(0.25);
       r.connect(rlp); rlp.connect(rg); rg.connect(g);
       g.connect(master);
-      branches.rain = { gain: g, base: 0.4 };
+      branches.rain = { gain: g, base: 0.5 };
     }
 
     /* ---- wind / airflow ---- */
@@ -111,10 +122,15 @@ const CabinAudio = (() => {
       // slow filter sweep = whoosh
       const sweep = ctx.createOscillator(); const sg = gain(260);
       sweep.frequency.value = 0.05; sweep.connect(sg); sg.connect(bp.frequency); sweep.start();
-      branches.wind = { gain: g, base: 0.5 };
+      branches.wind = { gain: g, base: 0.6 };
     }
 
     started = true;
+
+    // belt & braces: keep trying to resume on any user gesture (autoplay)
+    const resume = ()=>{ if (ctx && ctx.state === "suspended") ctx.resume(); };
+    ["pointerdown","touchstart","click","keydown"].forEach(ev=>
+      document.addEventListener(ev, resume, { passive:true }));
   }
 
   function ramp(param, v, t = 1.2){
@@ -160,5 +176,12 @@ const CabinAudio = (() => {
     isOn(){ return started && !muted; },
     current(){ return scape; },
     volume(){ return userVol; },
+    level(){
+      if (!analyser) return 0;
+      const a = new Uint8Array(analyser.fftSize);
+      analyser.getByteTimeDomainData(a);
+      let s = 0; for (const v of a){ const x = (v-128)/128; s += x*x; }
+      return Math.sqrt(s / a.length);
+    },
   };
 })();
