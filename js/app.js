@@ -205,10 +205,22 @@
   });
 
   /* ---- sound ---- */
+  const soundSheet = $("#soundSheet");
   $("#soundToggle").addEventListener("click",(e)=>{
     e.stopPropagation();
-    const on = CabinAudio.toggle();
-    $("#soundToggle").style.opacity = on ? "1" : ".4";
+    soundSheet.classList.add("open");
+  });
+  $("#closeSound").addEventListener("click", ()=> soundSheet.classList.remove("open"));
+  $$("#soundOpts button").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      $$("#soundOpts button").forEach(x=>x.classList.remove("active"));
+      b.classList.add("active");
+      CabinAudio.setScape(b.dataset.s);
+    });
+  });
+  $("#volSlider").addEventListener("input", (e)=>{
+    CabinAudio.setVolume(e.target.value / 100);
+    $("#soundToggle").style.opacity = +e.target.value > 0 ? "1" : ".4";
   });
 
   /* ---- sleep timer ---- */

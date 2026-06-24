@@ -258,6 +258,17 @@ body{
 .timer-opts button.active{border-color:var(--gold);color:var(--gold);background:rgba(255,207,92,.12)}
 .sheet-close{width:100%;margin-top:18px;padding:16px;border:none;border-radius:18px;
   background:rgba(255,255,255,.1);color:#fff;font-size:16px;font-weight:600;cursor:pointer}
+.sound-opts{grid-template-columns:repeat(2,1fr)}
+.sound-opts button{font-size:14px;padding:18px 12px;text-align:left}
+.vol-row{display:flex;align-items:center;gap:14px;margin-top:18px;
+  color:var(--muted);font-size:14px;font-weight:600}
+.vol-row input[type=range]{flex:1;-webkit-appearance:none;appearance:none;height:6px;
+  border-radius:6px;background:rgba(255,255,255,.14);outline:none}
+.vol-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+  width:22px;height:22px;border-radius:50%;background:var(--gold);cursor:pointer;
+  box-shadow:0 0 10px rgba(255,207,92,.6)}
+.vol-row input[type=range]::-moz-range-thumb{width:22px;height:22px;border:none;border-radius:50%;
+  background:var(--gold);cursor:pointer}
 
 /* fade to sleep */
 .sleep-fade{position:absolute;inset:0;z-index:5;background:#000;

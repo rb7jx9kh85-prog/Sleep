@@ -141,6 +141,25 @@
         </div>
       </div>
 
+      <!-- sound sheet -->
+      <div class="sheet" id="soundSheet">
+        <div class="sheet-card">
+          <h3>Ambiance sonore</h3>
+          <p class="sheet-sub">Sons générés en direct, en boucle infinie — aucun fichier, aucune coupure audible.</p>
+          <div class="timer-opts sound-opts" id="soundOpts">
+            <button data-s="cabin" class="active">✈&nbsp; Cabine d'avion</button>
+            <button data-s="white">⋯&nbsp; Bruit blanc</button>
+            <button data-s="rain">☔&nbsp; Pluie douce</button>
+            <button data-s="wind">≋&nbsp; Souffle d'air</button>
+          </div>
+          <div class="vol-row">
+            <span>Volume</span>
+            <input type="range" id="volSlider" min="0" max="100" value="50" />
+          </div>
+          <button class="sheet-close" id="closeSound">Fermer</button>
+        </div>
+      </div>
+
       <!-- fade to sleep -->
       <div class="sleep-fade" id="sleepFade"></div>
     </section>
