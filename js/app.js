@@ -9,6 +9,7 @@
   const screens = {
     home:   $("#screen-home"),
     select: $("#screen-select"),
+    globe:  $("#screen-globe"),
     window: $("#screen-window"),
   };
   function show(name){
@@ -182,11 +183,44 @@
       nightRaf = requestAnimationFrame(progress);
     })();
 
+    globe.stop();
     CabinAudio.enable();
     show("window");
     resetSleepTimer();
   }
-  $("#bookFlight").addEventListener("click", startFlight);
+
+  /* ---- earth flyover (boarding animation + relaxing loop) ---- */
+  const globe = Globe($("#globeCanvas"));
+  let globeSkipFn = null;
+
+  function startBoarding(){
+    const f = FLIGHTS[selected];
+    CabinAudio.enable();                 // unlock audio on this gesture
+    selectMap.stop();
+    clearInterval(quoteTimer);
+    $("#globeRoute").textContent = `${f.from} → ${f.to}`;
+    $("#globeSkip").textContent = "Embarquer ›";
+    globe.start({
+      from:HOME_COORD, to:AIRPORTS[f.to], fromCode:f.from, toCode:f.to,
+      loop:false, onDone:()=> startFlight(),
+    });
+    globeSkipFn = ()=> startFlight();
+    show("globe");
+  }
+  $("#bookFlight").addEventListener("click", startBoarding);
+
+  $("#earthBtn").addEventListener("click", ()=>{
+    const f = FLIGHTS[selected] || FLIGHTS[0];
+    $("#globeRoute").textContent = `${f.from} → ${f.to}`;
+    $("#globeSkip").textContent = "Retour";
+    globe.start({
+      from:HOME_COORD, to:AIRPORTS[f.to], fromCode:f.from, toCode:f.to, loop:true,
+    });
+    globeSkipFn = ()=>{ globe.stop(); show("home"); };
+    show("globe");
+  });
+
+  $("#globeSkip").addEventListener("click", ()=> globeSkipFn && globeSkipFn());
 
   function leaveWindow(){
     scene.stop();
