@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#070d1a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Window Seat · Sleep</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div id="app">
+
+    <!-- ============ HOME ============ -->
+    <section class="screen home active" id="screen-home">
+      <canvas class="map-canvas" id="homeMap"></canvas>
+      <div class="map-vignette"></div>
+
+      <div class="statusbar">
+        <span class="clock" id="clock-home">--:--</span>
+        <span class="sb-icons">
+          <i class="ic-signal"></i><i class="ic-wifi"></i><i class="ic-batt"></i>
+        </span>
+      </div>
+
+      <div class="home-head">
+        <p class="greet" id="greet">Bonne nuit !</p>
+        <h1 class="city" id="home-city">Genève</h1>
+      </div>
+
+      <div class="home-bottom">
+        <button class="btn-primary" id="goSelect">Commencer le voyage</button>
+        <div class="attribution">Window Seat · pour s'endormir</div>
+        <div class="tabs">
+          <button class="tab active">Mes vols</button>
+          <button class="tab">Tendances</button>
+          <button class="tab">Monde</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FLIGHT SELECT ============ -->
+    <section class="screen select" id="screen-select">
+      <canvas class="map-canvas" id="selectMap"></canvas>
+      <div class="map-vignette soft"></div>
+
+      <div class="statusbar">
+        <span class="clock" id="clock-select">--:--</span>
+        <span class="sb-icons">
+          <i class="ic-signal"></i><i class="ic-wifi"></i><i class="ic-batt"></i>
+        </span>
+      </div>
+
+      <div class="select-top">
+        <button class="round-btn" id="backSelect" aria-label="Retour">‹</button>
+        <h2 class="select-title">Choisis ton vol</h2>
+        <button class="round-btn" id="shuffleFlight" aria-label="Aléatoire">⤮</button>
+      </div>
+
+      <div class="duration-strip">
+        <span class="dur-label" id="durLabel">45 min</span>
+        <div class="ruler"><span class="ruler-mark"></span></div>
+      </div>
+
+      <div class="flight-cards" id="flightCards"><!-- injected --></div>
+
+      <button class="btn-primary book" id="bookFlight">Embarquer</button>
+    </section>
+
+    <!-- ============ WINDOW EXPERIENCE ============ -->
+    <section class="screen window" id="screen-window">
+      <canvas id="scene"></canvas>
+
+      <!-- cabin / window frame overlay -->
+      <div class="cabin">
+        <div class="window-hole" id="windowHole">
+          <div class="glass-glare"></div>
+          <div class="window-frame"></div>
+          <div class="shade" id="shade"></div>
+          <div class="breather"></div>
+        </div>
+      </div>
+
+      <!-- flight HUD -->
+      <div class="hud" id="hud">
+        <div class="hud-top">
+          <button class="round-btn ghost" id="exitWindow" aria-label="Quitter">‹</button>
+          <div class="hud-route">
+            <span id="hudFrom">GVA</span>
+            <span class="hud-plane">✈</span>
+            <span id="hudTo">ZRH</span>
+          </div>
+          <button class="round-btn ghost" id="soundToggle" aria-label="Son">♪</button>
+        </div>
+
+        <div class="hud-bottom">
+          <div class="hud-info">
+            <div class="hud-time" id="hudTime">00:00</div>
+            <div class="hud-sub" id="hudSub">Altitude de croisière</div>
+          </div>
+          <div class="hud-controls">
+            <button class="chip" id="shadeBtn">Baisser le store</button>
+            <button class="chip" id="timerBtn">Minuteur</button>
+          </div>
+        </div>
+
+        <div class="tap-hint" id="tapHint">Touche l'écran pour masquer</div>
+      </div>
+
+      <!-- timer sheet -->
+      <div class="sheet" id="timerSheet">
+        <div class="sheet-card">
+          <h3>Minuteur de sommeil</h3>
+          <p class="sheet-sub">L'écran s'assombrit doucement puis le vol se termine.</p>
+          <div class="timer-opts" id="timerOpts">
+            <button data-min="10">10 min</button>
+            <button data-min="20">20 min</button>
+            <button data-min="30">30 min</button>
+            <button data-min="45">45 min</button>
+            <button data-min="0">Aucun</button>
+          </div>
+          <button class="sheet-close" id="closeTimer">Fermer</button>
+        </div>
+      </div>
+
+      <!-- fade to sleep -->
+      <div class="sleep-fade" id="sleepFade"></div>
+    </section>
+
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/scene.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
